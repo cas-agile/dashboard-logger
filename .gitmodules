@@ -1,0 +1,8 @@
+[submodule "dashboard-logger-front"]
+	path = dashboard-logger-front
+	url = https://github.com/cas-agile/dashboard-logger-front
+	branch = master
+[submodule "dashboard-logger-back"]
+	path = dashboard-logger-back
+	url = https://github.com/cas-agile/dashboard-logger-back
+	branch = master
