@@ -1,0 +1,67 @@
+version: "3.5"
+
+services:
+
+  logger-back:
+    build:
+      context: .
+      dockerfile: ./dashboard-logger-back/Dockerfile
+    container_name: cas-logger-back
+    restart: unless-stopped
+    depends_on:
+      - mongo
+    ports:
+      - 9005:8120
+    environment:
+      FLASK_BASE_PATH: "/logger"
+      FLASK_PORT: 8120
+      FLASK_SECRET_KEY: "super-secret"
+      MONGO_DB: "logger_db"
+      MONGO_HOST: "logger-db"
+      MONGO_USER: "root"
+      MONGO_PASSWORD: "root"
+    networks:
+      - network-logger
+
+  mongo:
+    image: mongo:4.4.19
+    container_name: cas-logger-db
+    hostname: logger-db
+    restart: unless-stopped
+    expose:
+      - "27017"
+    environment:
+      MONGO_INITDB_DATABASE: "logger_db"
+      MONGO_INITDB_ROOT_USERNAME: "root"
+      MONGO_INITDB_ROOT_PASSWORD: "root"
+    volumes:
+      - ./mongo-data:/data/db
+    networks:
+      - network-logger
+
+
+  logger-front:
+    build:
+      context: .
+      dockerfile: ./dashboard-logger-front/Dockerfile
+      args:
+        PUBLIC_URL: "http://example.org"
+        LOGGER_URL: "http://example.org/logger"
+        GITLAB_URL: "http://example.org/gitlab"
+        TAIGA_URL: "http://example.org/taiga"
+        MATTERMOST_URL: "http://example.org/mattermost"
+        SONARQUBE_URL: "http://example.org/sonarqube"
+    container_name: cas-dashboard-front
+    restart: unless-stopped
+    depends_on:
+      - logger-back
+    ports:
+      - 8080:80
+    volumes:
+      - "/cas-dashboard/node_modules"
+    networks:
+      - network-logger
+
+networks:
+  network-logger:
+    name: network-logger
